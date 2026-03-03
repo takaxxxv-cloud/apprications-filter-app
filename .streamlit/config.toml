@@ -6,4 +6,4 @@ backgroundColor = "#000000"
 textColor = "#CCFF00"
 
 # もしサイドバーなど（サブの背景）も色を変えたい場合は以下を設定（今回は白にしています）
-secondaryBackgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#696969"
