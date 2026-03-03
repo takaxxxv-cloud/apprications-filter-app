@@ -1,45 +1,72 @@
 import streamlit as st
 import pandas as pd
 
-# アプリのタイトル
-st.title("顧客データ抽出システム")
+# ページの設定
+st.set_page_config(page_title="顧客リスト抽出ツール", layout="wide")
+
+st.title("💰 顧客リスト抽出・ダウンロードツール")
+st.write("CSVをアップロードして、抽出したいリストのボタンを押すだけで完了します。")
 
 # 1. CSVファイルのアップロード
 uploaded_file = st.file_uploader("CSVファイルをアップロードしてください", type="csv")
 
 if uploaded_file is not None:
-    # 💡 ここが修正ポイントです！文字コードのエラーを防ぎます
+    # 文字コード対策（Shift-JISとUTF-8の両方に対応）
     try:
-        # まずは標準のUTF-8で読み込んでみる
         df = pd.read_csv(uploaded_file, encoding='utf-8')
-    except UnicodeDecodeError:
-        # エラーが出たら、Excel標準のShift-JISで読み直す
+    except:
         uploaded_file.seek(0)
         df = pd.read_csv(uploaded_file, encoding='shift_jis')
     
-    st.write("【元のデータ】", df.head()) # 最初の5行だけ表示
-
-    st.subheader("抽出条件の設定")
+    st.success("ファイルの読み込みに成功しました！")
     
-    # 2. 絞り込みたい列（項目）を選択
-    column_to_filter = st.selectbox("どの項目で絞り込みますか？", df.columns)
+    # ⚠️ 必須の列（項目名）がCSVに存在するかチェック
+    required_columns = ['割当口数', '状態', '入金額']
+    missing_columns = [col for col in required_columns if col not in df.columns]
     
-    # 3. 検索するキーワードを入力
-    search_keyword = st.text_input(f"「{column_to_filter}」に含まれるキーワードを入力してください")
+    if missing_columns:
+        # もし列名が違っていたらエラーメッセージを出す
+        st.error(f"エラー: アップロードされたCSVに以下の項目名が見つかりません: {', '.join(missing_columns)}")
+        st.info("※CSVの1行目の項目名が「割当口数」「状態」「入金額」と完全に一致しているか（スペースなどが混じっていないか）確認してください。")
     
-    # 4. 抽出の実行
-    if search_keyword:
-        # 条件に一致するデータだけを抽出
-        filtered_df = df[df[column_to_filter].astype(str).str.contains(search_keyword, na=False)]
+    else:
+        st.subheader("📋 抽出メニュー")
         
-        st.write(f"【抽出結果】 {len(filtered_df)}件見つかりました")
-        st.dataframe(filtered_df)
-        
-        # 5. 結果をCSVでダウンロード（文字化け防止のため utf-8-sig に変更）
-        csv = filtered_df.to_csv(index=False).encode('utf-8-sig')
-        st.download_button(
-            label="抽出結果をCSVでダウンロード",
-            data=csv,
-            file_name="filtered_data.csv",
-            mime="text/csv",
+        # 2. リストの種類を選択（ワンクリックで切り替え）
+        target_type = st.radio(
+            "作成するリストを選択してください",
+            ["未選択", "出資未確定者リスト", "未入金者リスト"],
+            horizontal=True
         )
+
+        if target_type != "未選択":
+            
+            # --- 3. プログラムによる自動抽出 ---
+            
+            # 安全に計算できるように、データの中に空白（空欄）があれば「0」として扱う設定
+            df['割当口数'] = pd.to_numeric(df['割当口数'], errors='coerce').fillna(0)
+            df['入金額'] = pd.to_numeric(df['入金額'], errors='coerce').fillna(0)
+
+            if target_type == "出資未確定者リスト":
+                # 定義: 割当口数 ≠ 0, かつ 状態 = 応募
+                filtered_df = df[(df['割当口数'] != 0) & (df['状態'] == '応募')]
+                
+            elif target_type == "未入金者リスト":
+                # 定義: 割当口数 ≠ 0, かつ 状態 = 同意, かつ 入金額 = 0
+                filtered_df = df[(df['割当口数'] != 0) & (df['状態'] == '同意') & (df['入金額'] == 0)]
+
+            # --- 4. 結果の表示とダウンロード ---
+            st.write(f"### 🔍 {target_type} の一覧 ({len(filtered_df)}名)")
+            st.dataframe(filtered_df)
+
+            if len(filtered_df) > 0:
+                # ダウンロード用のデータを作成
+                csv_data = filtered_df.to_csv(index=False).encode('utf-8-sig')
+                st.download_button(
+                    label=f"✅ {target_type}のCSVをダウンロード",
+                    data=csv_data,
+                    file_name=f"{target_type}.csv",
+                    mime="text/csv",
+                )
+            else:
+                st.warning("該当する対象者が0名でした。")
