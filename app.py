@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 
 # ページの設定
-st.set_page_config(page_title="InvEx Engine", layout="wide")
+st.set_page_config(page_title="Swift Extract", layout="wide")
 
 st.title("Swift Extract - 催促リスト抽出ツール")
 st.write("CSVをアップロードして、抽出したいリストのボタンを押すだけで完了します。")
