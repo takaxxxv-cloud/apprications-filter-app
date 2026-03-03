@@ -4,7 +4,7 @@ import pandas as pd
 # ページの設定
 st.set_page_config(page_title="SE", layout="wide")
 
-st.title("Swift Extract")
+st.title(":blue[⚡️ Swift Extract - 催促リスト抽出ツール]")
 st.write("CSVをアップロードして、抽出したいリストのボタンを押すだけで完了します。")
 
 # 1. CSVファイルのアップロード
