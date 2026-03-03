@@ -56,7 +56,7 @@ if uploaded_file is not None:
                 filtered_df = df[(df['割当口数'] != 0) & (df['状態'] == '同意') & (df['入金額'] == 0)]
 
             # --- 4. 結果の表示とダウンロード ---
-            st.write(f"### 🔍 {target_type} の一覧 ({len(filtered_df)}名)")
+            st.write(f"###  {target_type} の一覧 ({len(filtered_df)}名)")
             st.dataframe(filtered_df)
 
             if len(filtered_df) > 0:
