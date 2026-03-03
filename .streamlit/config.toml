@@ -1,0 +1,9 @@
+[theme]
+# 背景色を黄緑っぽい蛍光グリーン（カラーコード：#CCFF00）にする
+backgroundColor = "#CCFF00"
+
+# メインの文字色をすべて黒（カラーコード：#000000）にする
+textColor = "#000000"
+
+# もしサイドバーなど（サブの背景）も色を変えたい場合は以下を設定（今回は白にしています）
+secondaryBackgroundColor = "#FFFFFF"
