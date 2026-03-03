@@ -4,7 +4,7 @@ import pandas as pd
 # ページの設定
 st.set_page_config(page_title="顧客リスト抽出ツール", layout="wide")
 
-st.title("💰 顧客リスト抽出・ダウンロードツール")
+st.title("顧客リスト抽出・ダウンロードツール")
 st.write("CSVをアップロードして、抽出したいリストのボタンを押すだけで完了します。")
 
 # 1. CSVファイルのアップロード
