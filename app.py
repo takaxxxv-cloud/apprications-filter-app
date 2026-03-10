@@ -81,19 +81,32 @@ if uploaded_file is not None:
             df['入金額'] = df['入金額'].str.replace(sym, '', regex=False)
         df['入金額'] = pd.to_numeric(df['入金額'], errors='coerce').fillna(0)
 
-        # ==========================================
+       # ==========================================
         # 📊 全体サマリーダッシュボード
         # ==========================================
         st.markdown("<h3 style='color: #F2F2F2; font-weight: 300;'>📊 全体サマリー</h3>", unsafe_allow_html=True)
         
-        # 上段：全体KPIメトリクス
-        m1, m2, m3 = st.columns(3)
+        # 🎯 入金率の計算ロジック（1口＝10,000円固定）
+        total_kuchi = df['割当口数'].sum()
+        total_deposit = df['入金額'].sum()
+        total_allocated_amount = total_kuchi * 10000  # 総割当口数 × 10,000円 ＝ 総割当金額
+        
+        # 0割りのエラー（割当口数が0の時のエラー）を防ぐ処理
+        if total_allocated_amount > 0:
+            deposit_rate = (total_deposit / total_allocated_amount) * 100
+        else:
+            deposit_rate = 0.0
+
+        # 上段：全体KPIメトリクス（4列で表示）
+        m1, m2, m3, m4 = st.columns(4)
         with m1:
             st.metric(label="応募者数", value=f"{len(df)} 名")
         with m2:
-            st.metric(label="総割当口数", value=f"{df['割当口数'].sum():,.0f} 口")
+            st.metric(label="総割当口数", value=f"{total_kuchi:,.0f} 口")
         with m3:
-            st.metric(label="総入金額", value=f"¥ {df['入金額'].sum():,.0f}")
+            st.metric(label="総入金額", value=f"¥ {total_deposit:,.0f}")
+        with m4:
+            st.metric(label="入金率", value=f"{deposit_rate:.1f} %")
         
         # 中段：グラフエリア
         c1, c2 = st.columns(2)
