@@ -89,7 +89,7 @@ if uploaded_file is not None:
         # 上段：全体KPIメトリクス
         m1, m2, m3 = st.columns(3)
         with m1:
-            st.metric(label="総リスト登録数", value=f"{len(df)} 名")
+            st.metric(label="応募者数", value=f"{len(df)} 名")
         with m2:
             st.metric(label="総割当口数", value=f"{df['割当口数'].sum():,.0f} 口")
         with m3:
