@@ -1,21 +1,72 @@
 import streamlit as st
 import pandas as pd
 
-# ページの設定（タブのアイコンも追加）
-st.set_page_config(page_title="Swift Extract", page_icon="🔋", layout="wide")
+# ページの設定
+st.set_page_config(page_title="Swift Extract", page_icon="🥂", layout="wide")
+
+# ==========================================
+# 💎 カスタムCSSによる高級感の演出
+# ==========================================
+st.markdown("""
+<style>
+    /* Googleフォントから明朝体を読み込み */
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&display=swap');
+
+    /* 全体のフォントと背景色の設定 */
+    html, body, [class*="css"] {
+        font-family: 'Noto Serif JP', serif !important;
+    }
+    
+    /* アプリ全体の背景をリッチなダークトーンに */
+    .stApp {
+        background-color: #121212;
+        color: #E0E0E0;
+    }
+    
+    /* サイドバーの背景色を少し変えて立体感を出す */
+    [data-testid="stSidebar"] {
+        background-color: #1A1A1A !important;
+        border-right: 1px solid #333;
+    }
+
+    /* メトリクス（強調される数字）をゴールドに */
+    div[data-testid="stMetricValue"] {
+        color: #D4AF37 !important; 
+        font-weight: 600;
+    }
+
+    /* ダウンロードボタンの装飾（ゴールド） */
+    .stButton>button {
+        background-color: transparent !important;
+        color: #D4AF37 !important;
+        border: 1px solid #D4AF37 !important;
+        border-radius: 2px !important;
+        transition: all 0.3s ease;
+    }
+    .stButton>button:hover {
+        background-color: #D4AF37 !important;
+        color: #121212 !important;
+        border-color: #D4AF37 !important;
+    }
+
+    /* Streamlitのデフォルトメニューとフッターを非表示にしてスッキリさせる */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+</style>
+""", unsafe_allow_html=True)
 
 # ==========================================
 # メイン画面（ヘッダー部分）
 # ==========================================
-st.title("🔋 Swift Extract")
-st.markdown("#### 催促リスト抽出ツール")
-st.write("左側のサイドバーからCSVをアップロードし、抽出したいリストを選択してください。")
-st.divider() # 区切り線を入れてスッキリさせる
+st.markdown("<h1 style='color: #D4AF37; font-weight: 300;'>Swift Extract</h1>", unsafe_allow_html=True)
+st.markdown("<p style='color: #A0A0A0; font-size: 1.2rem;'>催促リスト抽出システム</p>", unsafe_allow_html=True)
+st.divider()
 
 # ==========================================
 # サイドバー（操作パネル）
 # ==========================================
-st.sidebar.header("⚙️ 操作パネル")
+st.sidebar.markdown("<h3 style='color: #D4AF37;'>操作パネル</h3>", unsafe_allow_html=True)
 uploaded_file = st.sidebar.file_uploader("1. CSVファイルをアップロード", type="csv")
 
 if uploaded_file is not None:
@@ -26,7 +77,7 @@ if uploaded_file is not None:
         uploaded_file.seek(0)
         df = pd.read_csv(uploaded_file, encoding='shift_jis')
     
-    st.sidebar.success("ファイルの読み込み成功！")
+    st.sidebar.success("ファイルの読み込み完了")
     
     required_columns = ['割当口数', '状態', '入金額']
     missing_columns = [col for col in required_columns if col not in df.columns]
@@ -38,7 +89,7 @@ if uploaded_file is not None:
         st.sidebar.divider()
         
         target_type = st.sidebar.radio(
-            "2. 作成するリストを選択",
+            "2. 抽出対象の選択",
             ["未選択", "出資未確定者リスト", "未入金者リスト"]
         )
 
@@ -66,7 +117,7 @@ if uploaded_file is not None:
             # ==========================================
             # メイン画面（結果表示エリア）
             # ==========================================
-            st.markdown(f"### 📋 {target_type} の抽出結果")
+            st.markdown(f"<h3 style='color: #E0E0E0; font-weight: 300;'>{target_type} の抽出結果</h3>", unsafe_allow_html=True)
             
             # 数字をダッシュボード風に強調表示
             col1, col2 = st.columns(2)
@@ -76,25 +127,23 @@ if uploaded_file is not None:
                 total_kuchi = filtered_df['割当口数'].sum()
                 st.metric(label="対象割当口数 合計", value=f"{total_kuchi:,.0f} 口")
             
-            # データフレームの表示（画面幅に合わせて表示）
+            # データフレームの表示
             st.dataframe(filtered_df, use_container_width=True)
 
             # ダウンロードボタンの配置
             if len(filtered_df) > 0:
                 csv_data = filtered_df.to_csv(index=False).encode('utf-8-sig')
                 
-                # 少し余白を空けてからボタンを配置
                 st.markdown("<br>", unsafe_allow_html=True)
                 st.download_button(
-                    label=f"✅ {target_type}のCSVをダウンロード",
+                    label=f"CSVファイルをダウンロード",
                     data=csv_data,
                     file_name=f"{target_type}.csv",
                     mime="text/csv",
-                    type="primary"  # ボタンを目立たせる（テーマのメインカラーになる）
+                    type="primary"
                 )
             else:
                 st.info("該当する対象者が0名でした。")
 
 else:
-    # ファイルがアップロードされる前のプレースホルダー
-    st.info("👈 左側のサイドバーからCSVファイルをアップロードして開始してください。")
+    st.info("左側のパネルよりCSVファイルをアップロードしてください。")
