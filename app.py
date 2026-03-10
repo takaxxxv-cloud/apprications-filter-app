@@ -69,7 +69,7 @@ uploaded_file = st.sidebar.file_uploader("1. CSVファイルをアップロー�
 if uploaded_file is not None:
     try:
         df = pd.read_csv(uploaded_file, encoding='utf-8')
-except:
+    except:
         uploaded_file.seek(0)
         df = pd.read_csv(uploaded_file, encoding='shift_jis')
     
