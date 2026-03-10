@@ -5,9 +5,9 @@ import pandas as pd
 st.set_page_config(page_title="Swift Extract", page_icon="🥂", layout="wide")
 
 # ==========================================
-# 💎 カスタムCSSによる高級感の演出
+# 💎 カスタムCSSによる高級感の演出（ブラック＆ゴールド）
 # ==========================================
-st.markdown("""
+custom_css = """
 <style>
     /* Googleフォントから明朝体を読み込み */
     @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&display=swap');
@@ -17,53 +17,58 @@ st.markdown("""
         font-family: 'Noto Serif JP', serif !important;
     }
     
+    /* より深い漆黒の背景色 */
     .stApp {
-        background-color: #121212;
-        color: #E0E0E0;
+        background-color: #0A0A0A;
+        color: #F2F2F2;
     }
     
+    /* サイドバーの背景色とゴールドの区切り線 */
     [data-testid="stSidebar"] {
-        background-color: #1A1A1A !important;
-        border-right: 1px solid #333;
+        background-color: #141414 !important;
+        border-right: 1px solid #332918;
     }
 
+    /* メトリクス（強調される数字）をシャンパンゴールドに */
     div[data-testid="stMetricValue"] {
-        color: #D4AF37 !important; 
+        color: #C5A059 !important; 
         font-weight: 600;
     }
 
     /* ダウンロードボタンの装飾を完全にゴールドへ統一 */
     div[data-testid="stDownloadButton"] > button {
         background-color: transparent !important;
-        color: #D4AF37 !important;
-        border: 1px solid #D4AF37 !important;
+        color: #C5A059 !important;
+        border: 1px solid #C5A059 !important;
         border-radius: 2px !important;
-        transition: all 0.3s ease;
-        padding: 0.5rem 1rem;
+        transition: all 0.4s ease;
+        padding: 0.5rem 1.5rem;
+        letter-spacing: 1px;
     }
     div[data-testid="stDownloadButton"] > button:hover {
-        background-color: #D4AF37 !important;
-        color: #121212 !important;
-        border-color: #D4AF37 !important;
+        background-color: #C5A059 !important;
+        color: #0A0A0A !important;
+        border-color: #C5A059 !important;
     }
 
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
 </style>
-""", unsafe_allow_html=True)
+"""
+st.markdown(custom_css, unsafe_allow_html=True)
 
 # ==========================================
 # メイン画面（ヘッダー部分）
 # ==========================================
-st.markdown("<h1 style='color: #D4AF37; font-weight: 300;'>Swift Extract</h1>", unsafe_allow_html=True)
-st.markdown("<p style='color: #A0A0A0; font-size: 1.2rem;'>催促リスト抽出システム</p>", unsafe_allow_html=True)
+st.markdown("<h1 style='color: #C5A059; font-weight: 300; letter-spacing: 2px;'>Swift Extract</h1>", unsafe_allow_html=True)
+st.markdown("<p style='color: #8C8C8C; font-size: 1.1rem; letter-spacing: 1px;'>催促リスト抽出システム</p>", unsafe_allow_html=True)
 st.divider()
 
 # ==========================================
 # サイドバー（操作パネル）
 # ==========================================
-st.sidebar.markdown("<h3 style='color: #D4AF37;'>操作パネル</h3>", unsafe_allow_html=True)
+st.sidebar.markdown("<h3 style='color: #C5A059; font-weight: 400;'>操作パネル</h3>", unsafe_allow_html=True)
 uploaded_file = st.sidebar.file_uploader("1. CSVファイルをアップロード", type="csv")
 
 if uploaded_file is not None:
@@ -73,23 +78,17 @@ if uploaded_file is not None:
         uploaded_file.seek(0)
         df = pd.read_csv(uploaded_file, encoding='shift_jis')
     
-    # 💡 修正箇所：トリプルクォートで安全に複数行HTMLを囲む
-    st.sidebar.markdown(
-        """<div style='color: #D4AF37; font-size: 0.95rem; margin-top: -10px; margin-bottom: 20px;'>
-        ✔️ ファイルの読み込みが完了しました</div>""", 
-        unsafe_allow_html=True
-    )
+    # 💡 成功メッセージ（構文エラー対策済）
+    success_msg = "<div style='color: #C5A059; font-size: 0.95rem; margin-top: -10px; margin-bottom: 20px;'>✔️ ファイルの読み込みが完了しました</div>"
+    st.sidebar.markdown(success_msg, unsafe_allow_html=True)
     
     required_columns = ['割当口数', '状態', '入金額']
     missing_columns = [col for col in required_columns if col not in df.columns]
     
     if missing_columns:
-        # 💡 修正箇所：エラーメッセージも同様に修正
-        st.sidebar.markdown(
-            f"""<div style='color: #E57373; border-left: 3px solid #E57373; padding-left: 10px;'>
-            エラー: 以下の項目名が見つかりません<br>{', '.join(missing_columns)}</div>""", 
-            unsafe_allow_html=True
-        )
+        # 💡 エラーメッセージ（構文エラー対策済）
+        err_msg = f"<div style='color: #B35B5B; border-left: 3px solid #B35B5B; padding-left: 10px;'>エラー: 以下の項目名が見つかりません<br>{', '.join(missing_columns)}</div>"
+        st.sidebar.markdown(err_msg, unsafe_allow_html=True)
     
     else:
         st.sidebar.divider()
@@ -123,7 +122,7 @@ if uploaded_file is not None:
             # ==========================================
             # メイン画面（結果表示エリア）
             # ==========================================
-            st.markdown(f"<h3 style='color: #E0E0E0; font-weight: 300;'>{target_type} の抽出結果</h3>", unsafe_allow_html=True)
+            st.markdown(f"<h3 style='color: #F2F2F2; font-weight: 300;'>{target_type} の抽出結果</h3>", unsafe_allow_html=True)
             
             col1, col2 = st.columns(2)
             with col1:
@@ -145,17 +144,11 @@ if uploaded_file is not None:
                     mime="text/csv"
                 )
             else:
-                # 💡 修正箇所：ここもトリプルクォートに修正
-                st.markdown(
-                    """<div style='border-left: 3px solid #D4AF37; padding-left: 15px; color: #A0A0A0; margin-top: 20px;'>
-                    該当する対象者が0名でした。</div>""", 
-                    unsafe_allow_html=True
-                )
+                # 💡 対象者0名のメッセージ（構文エラー対策済）
+                zero_msg = "<div style='border-left: 2px solid #C5A059; padding-left: 15px; color: #8C8C8C; margin-top: 20px;'>該当する対象者が0名でした。</div>"
+                st.markdown(zero_msg, unsafe_allow_html=True)
 
 else:
-    # 💡 修正箇所：ここもトリプルクォートに修正
-    st.markdown(
-        """<div style='border-left: 3px solid #D4AF37; padding-left: 15px; color: #A0A0A0; margin-top: 20px;'>
-        左側のパネルよりCSVファイルをアップロードしてください。</div>""", 
-        unsafe_allow_html=True
-    )
+    # 💡 初期案内メッセージ（構文エラー対策済）
+    info_msg = "<div style='border-left: 2px solid #C5A059; padding-left: 15px; color: #8C8C8C; margin-top: 20px;'>左側のパネルよりCSVファイルをアップロードしてください。</div>"
+    st.markdown(info_msg, unsafe_allow_html=True)
