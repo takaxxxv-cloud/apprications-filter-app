@@ -17,39 +17,36 @@ st.markdown("""
         font-family: 'Noto Serif JP', serif !important;
     }
     
-    /* アプリ全体の背景をリッチなダークトーンに */
     .stApp {
         background-color: #121212;
         color: #E0E0E0;
     }
     
-    /* サイドバーの背景色を少し変えて立体感を出す */
     [data-testid="stSidebar"] {
         background-color: #1A1A1A !important;
         border-right: 1px solid #333;
     }
 
-    /* メトリクス（強調される数字）をゴールドに */
     div[data-testid="stMetricValue"] {
         color: #D4AF37 !important; 
         font-weight: 600;
     }
 
-    /* ダウンロードボタンの装飾（ゴールド） */
-    .stButton>button {
+    /* ダウンロードボタンの装飾を完全にゴールドへ統一 */
+    div[data-testid="stDownloadButton"] > button {
         background-color: transparent !important;
         color: #D4AF37 !important;
         border: 1px solid #D4AF37 !important;
         border-radius: 2px !important;
         transition: all 0.3s ease;
+        padding: 0.5rem 1rem;
     }
-    .stButton>button:hover {
+    div[data-testid="stDownloadButton"] > button:hover {
         background-color: #D4AF37 !important;
         color: #121212 !important;
         border-color: #D4AF37 !important;
     }
 
-    /* Streamlitのデフォルトメニューとフッターを非表示にしてスッキリさせる */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
@@ -70,80 +67,14 @@ st.sidebar.markdown("<h3 style='color: #D4AF37;'>操作パネル</h3>", unsafe_a
 uploaded_file = st.sidebar.file_uploader("1. CSVファイルをアップロード", type="csv")
 
 if uploaded_file is not None:
-    # 文字コード対策
     try:
         df = pd.read_csv(uploaded_file, encoding='utf-8')
     except:
         uploaded_file.seek(0)
         df = pd.read_csv(uploaded_file, encoding='shift_jis')
     
-    st.sidebar.success("ファイルの読み込み完了")
-    
-    required_columns = ['割当口数', '状態', '入金額']
-    missing_columns = [col for col in required_columns if col not in df.columns]
-    
-    if missing_columns:
-        st.error(f"エラー: アップロードされたCSVに以下の項目名が見つかりません: {', '.join(missing_columns)}")
-    
-    else:
-        st.sidebar.divider()
-        
-        target_type = st.sidebar.radio(
-            "2. 抽出対象の選択",
-            ["未選択", "出資未確定者リスト", "未入金者リスト"]
-        )
-
-        if target_type != "未選択":
-            
-            # --- 前処理（データクレンジング） ---
-            df['割当口数'] = df['割当口数'].astype(str)
-            df['割当口数'] = df['割当口数'].str.replace(',', '', regex=False).str.replace('，', '', regex=False)
-            df['割当口数'] = pd.to_numeric(df['割当口数'], errors='coerce').fillna(0)
-            
-            df['入金額'] = df['入金額'].astype(str)
-            symbols_to_remove = [',', '，', '¥', '￥', '円']
-            for sym in symbols_to_remove:
-                df['入金額'] = df['入金額'].str.replace(sym, '', regex=False)
-            df['入金額'] = pd.to_numeric(df['入金額'], errors='coerce').fillna(0)
-            # ----------------------------------------
-
-            # フィルタリング
-            if target_type == "出資未確定者リスト":
-                filtered_df = df[(df['割当口数'] != 0) & (df['状態'] == '応募')]
-                
-            elif target_type == "未入金者リスト":
-                filtered_df = df[(df['割当口数'] != 0) & (df['状態'] == '同意') & (df['入金額'] == 0)]
-
-            # ==========================================
-            # メイン画面（結果表示エリア）
-            # ==========================================
-            st.markdown(f"<h3 style='color: #E0E0E0; font-weight: 300;'>{target_type} の抽出結果</h3>", unsafe_allow_html=True)
-            
-            # 数字をダッシュボード風に強調表示
-            col1, col2 = st.columns(2)
-            with col1:
-                st.metric(label="対象者数", value=f"{len(filtered_df)} 名")
-            with col2:
-                total_kuchi = filtered_df['割当口数'].sum()
-                st.metric(label="対象割当口数 合計", value=f"{total_kuchi:,.0f} 口")
-            
-            # データフレームの表示
-            st.dataframe(filtered_df, use_container_width=True)
-
-            # ダウンロードボタンの配置
-            if len(filtered_df) > 0:
-                csv_data = filtered_df.to_csv(index=False).encode('utf-8-sig')
-                
-                st.markdown("<br>", unsafe_allow_html=True)
-                st.download_button(
-                    label=f"CSVファイルをダウンロード",
-                    data=csv_data,
-                    file_name=f"{target_type}.csv",
-                    mime="text/csv",
-                    type="primary"
-                )
-            else:
-                st.info("該当する対象者が0名でした。")
-
-else:
-    st.info("左側のパネルよりCSVファイルをアップロードしてください。")
+    # 🎨 完了メッセージを標準の緑色から、世界観に合わせたゴールドのテキストに変更
+    st.sidebar.markdown(
+        "<div style='color: #D4AF37; font-size: 0.95rem; margin-top: -10px; margin-bottom: 20px;'>"
+        "✔️ ファイルの読み込みが完了しました</div>", 
+        unsafe_allow_html=True
