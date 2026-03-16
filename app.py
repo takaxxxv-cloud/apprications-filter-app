@@ -154,11 +154,14 @@ if uploaded_file is not None:
             ["未選択", "出資未確定者リスト", "未入金者リスト"]
         )
 
-        if target_type != "未選択":
+      if target_type != "未選択":
             if target_type == "出資未確定者リスト":
                 filtered_df = df[(df['割当口数'] != 0) & (df['状態'] == '応募')]
             elif target_type == "未入金者リスト":
                 filtered_df = df[(df['割当口数'] != 0) & (df['状態'] == '同意') & (df['入金額'] == 0)]
+
+            # 💡 追加：抽出したデータを「割当口数」の大きい順（降順）に並び替える
+            filtered_df = filtered_df.sort_values(by='割当口数', ascending=False)
 
             st.markdown(f"<h3 style='color: #F2F2F2; font-weight: 300;'>📋 {target_type} の抽出結果</h3>", unsafe_allow_html=True)
             
