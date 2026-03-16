@@ -97,8 +97,16 @@ if uploaded_file is not None:
         else:
             deposit_rate = 0.0
 
-        # 上段：全体KPIメトリクス（4列で表示）
-        m1, m2, m3, m4 = st.columns(4)
+        # 🎯 💡 追加：同意率の計算ロジック
+        allocated_users = df[df['割当口数'] >= 1] # 割当口数が1以上の人を抽出（分母）
+        if len(allocated_users) > 0:
+            consented_users = len(allocated_users[allocated_users['状態'] == '同意']) # その中で「同意」している人（分子）
+            consent_rate = (consented_users / len(allocated_users)) * 100
+        else:
+            consent_rate = 0.0
+
+        # 上段：全体KPIメトリクス（5列で表示に変更）
+        m1, m2, m3, m4, m5 = st.columns(5)
         with m1:
             st.metric(label="応募者数", value=f"{len(df)} 名")
         with m2:
@@ -107,6 +115,8 @@ if uploaded_file is not None:
             st.metric(label="総入金額", value=f"¥ {total_deposit:,.0f}")
         with m4:
             st.metric(label="入金率", value=f"{deposit_rate:.1f} %")
+        with m5:
+            st.metric(label="同意率", value=f"{consent_rate:.1f} %") # 💡 追加！
         
         # 中段：グラフエリア
         c1, c2 = st.columns(2)
