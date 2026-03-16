@@ -153,8 +153,7 @@ if uploaded_file is not None:
             "2. 抽出対象の選択",
             ["未選択", "出資未確定者リスト", "未入金者リスト"]
         )
-
-      if target_type != "未選択":
+        if target_type != "未選択":
             if target_type == "出資未確定者リスト":
                 filtered_df = df[(df['割当口数'] != 0) & (df['状態'] == '応募')]
             elif target_type == "未入金者リスト":
