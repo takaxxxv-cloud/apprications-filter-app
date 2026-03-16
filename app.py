@@ -175,10 +175,25 @@ if uploaded_file is not None:
             if len(filtered_df) > 0:
                 csv_data = filtered_df.to_csv(index=False).encode('utf-8-sig')
                 st.markdown("<br>", unsafe_allow_html=True)
+                
+                # 💡 追加：元のファイル名を取得して一部を書き換える
+                original_name = uploaded_file.name
+                if target_type == "出資未確定者リスト":
+                    new_file_name = original_name.replace("applications", "pending")
+                elif target_type == "未入金者リスト":
+                    new_file_name = original_name.replace("applications", "unfunded")
+                else:
+                    new_file_name = f"{target_type}.csv"
+                
+                # 万が一、元のファイル名に「applications」が含まれていなかった場合の予備処理
+                if new_file_name == original_name:
+                    if target_type == "出資未確定者リスト": new_file_name = "pending.csv"
+                    elif target_type == "未入金者リスト": new_file_name = "unfunded.csv"
+
                 st.download_button(
                     label=f"CSVファイルをダウンロード",
                     data=csv_data,
-                    file_name=f"{target_type}.csv",
+                    file_name=new_file_name, # ← ここを書き換えたファイル名に変更
                     mime="text/csv"
                 )
             else:
